@@ -499,5 +499,76 @@ Simple note body
     (should (and (string= "Text" (car second-field))
                  (string-match "This is the {{c1::content}}." (cdr second-field))))))
 
+(anki-editor-deftest test--anki-editor--goto-nearest-note-type--file-based-basic ()
+  :doc "Test `anki-editor--goto-nearest-note-type' should pick up file-based note."
+  :in "test-files/file-based-basic.org"
+  :test
+  (let ((note-type (progn
+                      (end-of-buffer)
+                      (anki-editor--goto-nearest-note-type)
+                      (org-entry-get nil anki-editor-prop-note-type))))
+    (should (string= note-type "Basic"))))
+
+(anki-editor-deftest test--anki-editor--goto-nearest-note-type--file-based-basic-short ()
+  :doc "Test `anki-editor--goto-nearest-note-type' should pick up file-based note in short form."
+  :in "test-files/file-based-basic-short.org"
+  :test
+  (let ((note-type (progn
+                      (end-of-buffer)
+                      (anki-editor--goto-nearest-note-type)
+                      (org-entry-get nil anki-editor-prop-note-type))))
+    (should (string= note-type "Basic"))))
+
+(anki-editor-deftest test--anki-editor-note-at-point--file-based-basic ()
+  :doc "Test `anki-editor-note-at-point' should identify the file-based Basic note."
+  :in "test-files/file-based-basic.org"
+  :test
+  (let* ((note (progn
+                 (end-of-buffer)
+                 (anki-editor--goto-nearest-note-type)
+                 (anki-editor-note-at-point)))
+         (fields (anki-editor-note-fields note))
+         (first-field (nth 0 fields))
+         (second-field (nth 1 fields)))
+    (should (and (string= "Back" (car first-field))
+                 (string-match "This is back" (cdr first-field))))
+    (should (and (string= "Front" (car second-field))
+                 (string-match "This is front" (cdr second-field))))))
+
+(anki-editor-deftest test--anki-editor-note-at-point--file-based-basic-short ()
+  :doc "Test `anki-editor-note-at-point' should identify the file-based Basic note in short form."
+  :in "test-files/file-based-basic-short.org"
+  :test
+  (let* ((note (progn
+                 (end-of-buffer)
+                 (anki-editor--goto-nearest-note-type)
+                 (anki-editor-note-at-point)))
+         (fields (anki-editor-note-fields note))
+         (first-field (nth 0 fields))
+         (second-field (nth 1 fields)))
+    (should (and (string= "Back" (car first-field))
+                 (string-match "This is back" (cdr first-field))))
+    (should (and (string= "Front" (car second-field))
+                 (string-match "This is title" (cdr second-field))))))
+
+(anki-editor-deftest test--anki-editor-note-at-point--file-based-cloze-short ()
+  :doc "Test `anki-editor-note-at-point' should identify the file-based Cloze note in short form."
+  :in "test-files/file-based-cloze-short.org"
+  :test
+  (let* ((anki-editor-swap-two-fields '("Cloze"))
+         (note (progn
+                 ;; (end-of-buffer)
+                 (re-search-forward "{{c1::back}}")
+                 (anki-editor--goto-nearest-note-type)
+                 (anki-editor-note-at-point)))
+         (fields (anki-editor-note-fields note))
+         (first-field (nth 0 fields))
+         (second-field (nth 1 fields)))
+    (message "M %s" fields)
+    (should (and (string= "Back Extra" (car first-field))
+                 (string-match "This is title" (cdr first-field))))
+    (should (and (string= "Text" (car second-field))
+                 (string-match "This is {{c1::back}}" (cdr second-field))))))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; anki-editor-tests.el ends here

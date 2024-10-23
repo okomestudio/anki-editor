@@ -803,7 +803,8 @@ and else from variable `anki-editor-prepend-heading'."
          (tags (cl-set-difference (anki-editor--get-tags)
                                   anki-editor-ignored-org-tags
                                   :test #'string=))
-         (heading (substring-no-properties (org-get-heading t t t t)))
+         (heading (substring-no-properties (or (org-get-heading t t t t)
+                                               (org-get-title))))
          (level (org-current-level))
          (content-before-subheading
           (anki-editor--note-contents-before-subheading))
@@ -1224,14 +1225,19 @@ beginning of the current heading."
   (let ((pt (point))
         note-type)
     (while
-        (and (org-back-to-heading)
+        (and (if (org-current-level)
+                 (org-back-to-heading)
+               (goto-char 0))
              (not (setq note-type
                         (org-entry-get nil anki-editor-prop-note-type)))
-             (org-up-heading-safe)))
+             (if (org-up-heading-safe)
+                 t
+               (goto-char 0))))
     ;; If no note type was found, use a default fallback.
     (when (not note-type)
       (goto-char pt)
-      (org-back-to-heading))))
+      (when (org-current-level)
+        (org-back-to-heading)))))
 
 (defun anki-editor-push-note-at-point ()
   "Push note at point to Anki.

@@ -1,0 +1,7 @@
+:PROPERTIES:
+:ANKI_DECK: Tests
+:ANKI_NOTE_TYPE: Basic
+:END:
+#+title: This is title
+
+This is back.

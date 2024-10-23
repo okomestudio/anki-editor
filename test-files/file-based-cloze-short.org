@@ -1,0 +1,11 @@
+:PROPERTIES:
+:ANKI_DECK: Tests
+:ANKI_NOTE_TYPE: Cloze
+:END:
+#+title: This is title
+
+This is {{c1::back}}.
+
+* Anki notes
+** Problem 1
+** Problem 2
